@@ -55,7 +55,7 @@ class BigBangGui(QWidget):
         )
 
         self.setStyleSheet('background-color: white;')
-        self.target_set = False
+        self.target = False
 
         vbox = QVBoxLayout(self)
 
@@ -120,18 +120,20 @@ class BigBangGui(QWidget):
         self.setLayout(vbox)
 
     def button_press(self):
-        if self.target_set:
+        if self.target:
+            self.measured = random.uniform(100, 500)
             self.scale_label.setText(
-                '{:.0f} g'.format(random.uniform(100, 500))
+                '{:.0f} g'.format()
             )
-            self.target_set = False
-            w = WonWindow()
+            self.target = None
+
+            won = abs(self.measured - self.target) / self.target < 0.1
+            w = WonWindow(won=won)
             w.show()
             sleep(5)
             w.destroy()
         else:
-            self.target_label.setText(
-                '{:.0f} g'.format(random.uniform(100, 500))
-            )
+            self.target = random.uniform(100, 500)
+            self.target_label.setText('{:.0f} g'.format(self.target))
             self.scale_label.setText('--- g')
-            self.target_set = True
+            self.measured = None
