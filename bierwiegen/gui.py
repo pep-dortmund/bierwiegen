@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QCoreApplication, Qt
 import random
-import pkg_resources
+from pkg_resources import resource_string, resource_filename
 from PyQt5.QtWidgets import (
     QWidget,
     QShortcut,
@@ -53,7 +53,9 @@ class BigBangGui(QWidget):
             QCoreApplication.instance().quit
         )
 
-        self.setStyleSheet('background-color: white;')
+        self.setStyleSheet(resource_string(
+            'bierwiegen', 'resources/bierwiegen.stylesheet'
+        ).decode('utf-8'))
         self.target = False
         self.w = None
 
@@ -62,9 +64,7 @@ class BigBangGui(QWidget):
         upper_hbox = QHBoxLayout()
 
         logo = QLabel()
-        pixmap = QPixmap(pkg_resources.resource_filename(
-            'bierwiegen', 'resources/logo_negativ.png'
-        ))
+        pixmap = QPixmap(resource_filename('bierwiegen', 'resources/logo_negativ.png'))
         logo.setPixmap(pixmap.scaled(800, 300, Qt.KeepAspectRatio))
         logo.setAlignment(Qt.AlignTop)
 
