@@ -122,9 +122,7 @@ class BigBangGui(QWidget):
     def button_press(self):
         if self.target:
             self.measured = random.uniform(100, 500)
-            self.scale_label.setText(
-                '{:.0f} g'.format()
-            )
+            self.scale_label.setText('{:.0f} g'.format(self.measured))
             self.target = None
 
             won = abs(self.measured - self.target) / self.target < 0.1
