@@ -24,7 +24,7 @@ class WonWindow(QWidget):
         self.setFixedHeight(200)
 
         center = QApplication.desktop().availableGeometry().center()
-        self.move(center.x() - self.width() // 2, center.y() - self.height // 2)
+        self.move(center.x() - self.width() // 2, center.y() - self.height() // 2)
 
         vbox = QVBoxLayout()
 
