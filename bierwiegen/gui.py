@@ -18,17 +18,21 @@ from PyQt5.QtGui import (
 
 
 class WonWindow(QWidget):
-    def __init__(self):
+    def __init__(self, won=True):
         super().__init__()
-        self.setFixedWidth(600)
-        self.setFixedHeight(200)
-
-        center = QApplication.desktop().availableGeometry().center()
-        self.move(center.x() - self.width() // 2, center.y() - self.height() // 2)
 
         vbox = QVBoxLayout()
 
-        label = QLabel('Gewonnen')
+        if won:
+            label = QLabel('Gewonnen')
+        else:
+            label = QLabel('Verloren')
+
+        self.adjustSize()
+        center = QApplication.desktop().availableGeometry().center()
+        self.move(center.x() - self.width() // 2, center.y() - self.height() // 2)
+        self.setWindowFlags(Qt.FramelessWindowHint)
+
         font = label.font()
         font.setPointSize(120)
         font.setBold(True)
