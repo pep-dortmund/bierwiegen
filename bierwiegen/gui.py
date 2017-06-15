@@ -130,8 +130,9 @@ class BigBangGui(QWidget):
 
             w = WonWindow(won=won)
             w.show()
-            sleep(5)
+            sleep(10)
             w.destroy()
+            self.target_label.setText('--- g')
         else:
             self.target = random.uniform(100, 500)
             self.target_label.setText('{:.0f} g'.format(self.target))
