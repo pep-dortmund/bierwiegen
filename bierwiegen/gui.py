@@ -1,6 +1,7 @@
 from PyQt5.QtCore import QCoreApplication, Qt
 import random
 from PyQt5.QtWidgets import (
+    QDialog,
     QWidget,
     QShortcut,
     QHBoxLayout,
@@ -17,36 +18,12 @@ from pkg_resources import resource_filename
 from .gpio import readout_scale
 
 
-class WonWindow(QWidget):
-    def __init__(self, won=True):
-        super().__init__()
-
-        vbox = QVBoxLayout()
-
-        if won:
-            label = QLabel('Gewonnen')
-        else:
-            label = QLabel('Verloren')
-
-        self.adjustSize()
-        center = QApplication.desktop().availableGeometry().center()
-        self.move(center.x() - self.width() // 2, center.y() - self.height() // 2)
-        self.setWindowFlags(Qt.FramelessWindowHint)
-
-        vbox.addWidget(label)
-
-        self.setLayout(vbox)
-        self.show()
-
-
 class BigBangGui(QWidget):
 
     def __init__(self):
         super().__init__()
 
         self.target = False
-        self.w = None
-
         self.setup_shortcuts()
         self.setup_gui()
 
@@ -71,6 +48,10 @@ class BigBangGui(QWidget):
         upper_hbox.addWidget(logo)
         upper_hbox.addWidget(title)
         vbox.addLayout(upper_hbox)
+
+        self.winning_label = QLabel(objectName='winning_label')
+        self.winning_label.setAlignment(Qt.AlignCenter)
+        vbox.addWidget(self.winning_label)
 
         lower_hbox = QHBoxLayout()
         vbox.addLayout(lower_hbox)
@@ -121,11 +102,14 @@ class BigBangGui(QWidget):
 
             self.target = None
 
-            self.w = WonWindow(won=won)
-            self.w.show()
+            if won:
+                self.winning_label.setText('Gewonnen')
+                self.winning_label.setStyleSheet('color: green;')
+            else:
+                self.winning_label.setText('Verloren')
+                self.winning_label.setStyleSheet('color: red;')
         else:
-            if self.w:
-                self.w.destroy()
+            self.winning_label.setText('')
             self.target = random.uniform(100, 500)
             self.target_label.setText('{:.0f} g'.format(self.target))
             self.scale_label.setText('--- g')

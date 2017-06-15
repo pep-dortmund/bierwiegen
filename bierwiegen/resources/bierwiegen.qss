@@ -10,6 +10,10 @@ QLabel#title {
     font-size: 160px;
 }
 
+QLabel#winning_label {
+    font-size: 200px;
+}
+
 QLabel#scale_label, QLabel#target_label {
     font-family: monospace;
 }
