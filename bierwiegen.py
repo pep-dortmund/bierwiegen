@@ -118,8 +118,7 @@ class BigBangGui(QWidget):
             self.target_set = True
 
 
-if __name__ == '__main__':
-
+def main():
     app = QApplication(sys.argv)
 
     w = BigBangGui()
@@ -131,3 +130,7 @@ if __name__ == '__main__':
     ret = app.exec_()
     GPIO.cleanup()
     sys.exit(ret)
+
+
+if __name__ == '__main__':
+    main()
