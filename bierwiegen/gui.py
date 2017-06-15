@@ -22,7 +22,7 @@ class WonWindow(QWidget):
         super().__init__()
         self.setFixedWidth(400)
         self.setFixedHeight(400)
-        self.move(QApplication.desktop().center)
+        self.move(QApplication.desktop().availableGeometry().center)
 
         vbox = QVBoxLayout()
 
