@@ -1,17 +1,17 @@
-from PyQt5.QtCore import QCoreApplication, Qt
+from PyQt5.QtCore import QCoreApplication, Qt, QSize
 import random
 from PyQt5.QtWidgets import (
-    QDialog,
     QWidget,
     QShortcut,
     QHBoxLayout,
     QVBoxLayout,
     QLabel,
-    QApplication,
+    QSizePolicy
 )
 from PyQt5.QtGui import (
     QKeySequence,
     QPixmap,
+    QMovie,
 )
 from pkg_resources import resource_filename
 
@@ -49,8 +49,14 @@ class BigBangGui(QWidget):
         upper_hbox.addWidget(title)
         vbox.addLayout(upper_hbox)
 
+        self.fireworks = QMovie(resource_filename(
+            'bierwiegen', 'resources/fireworks.gif'
+        ))
+        self.fireworks.setScaledSize(QSize(1200, 536))
+
         self.winning_label = QLabel(objectName='winning_label')
         self.winning_label.setAlignment(Qt.AlignCenter)
+        self.winning_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         vbox.addWidget(self.winning_label)
 
         lower_hbox = QHBoxLayout()
@@ -98,18 +104,19 @@ class BigBangGui(QWidget):
             self.measured = readout_scale()
             self.scale_label.setText('{:.0f} g'.format(self.measured))
 
-            won = abs(self.measured - self.target) / self.target < 0.05
+            won = abs(self.measured - self.target) / self.target < 0.5
 
             self.target = None
 
             if won:
-                self.winning_label.setText('Gewonnen')
-                self.winning_label.setStyleSheet('color: green;')
+                self.winning_label.setMovie(self.fireworks)
+                self.fireworks.jumpToFrame(0)
+                self.fireworks.start()
             else:
                 self.winning_label.setText('Verloren')
                 self.winning_label.setStyleSheet('color: red;')
         else:
-            self.winning_label.setText('')
+            self.winning_label.clear()
             self.target = random.uniform(100, 500)
             self.target_label.setText('{:.0f} g'.format(self.target))
             self.scale_label.setText('--- g')
