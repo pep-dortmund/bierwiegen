@@ -40,7 +40,6 @@ class WonWindow(QWidget):
 
         self.setLayout(vbox)
         self.show()
-        self.w = None
 
 
 class BigBangGui(QWidget):
@@ -56,6 +55,7 @@ class BigBangGui(QWidget):
 
         self.setStyleSheet('background-color: white;')
         self.target = False
+        self.w = None
 
         vbox = QVBoxLayout(self)
 
