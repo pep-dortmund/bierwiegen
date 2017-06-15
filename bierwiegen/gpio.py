@@ -18,8 +18,8 @@ class ButtonWatchThread(Thread):
         while not self.event.is_set():
             if(GPIO.input(BUTTON_PIN) == 1):
                 self.widget.button_press()
-                self.sevent.wait(0.2)
-            self.sevent.wait(0.01)
+                self.event.wait(0.2)
+            self.event.wait(0.01)
 
     def terminate(self):
         self.event.set()
