@@ -1,4 +1,5 @@
 import warnings
+import random
 try:
     from RPi import GPIO
     GPIO.setmode(GPIO.BOARD)
@@ -8,6 +9,10 @@ except RuntimeError:
     warnings.warn("Not on a raspberry pi")
 
 from threading import Thread, Event
+
+
+def readout_scale():
+    return random.uniform(100, 500)
 
 
 class ButtonWatchThread(Thread):

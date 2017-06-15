@@ -14,6 +14,8 @@ from PyQt5.QtGui import (
 )
 from pkg_resources import resource_filename
 
+from .gpio import readout_scale
+
 
 class WonWindow(QWidget):
     def __init__(self, won=True):
@@ -112,7 +114,7 @@ class BigBangGui(QWidget):
 
     def button_press(self):
         if self.target:
-            self.measured = random.uniform(100, 500)
+            self.measured = readout_scale()
             self.scale_label.setText('{:.0f} g'.format(self.measured))
 
             won = abs(self.measured - self.target) / self.target < 0.1
