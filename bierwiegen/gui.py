@@ -46,19 +46,18 @@ class BigBangGui(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('PeP@BigBang')
-        self.exit_shortcut = QShortcut(
-            QKeySequence('Esc'),
-            self,
-            QCoreApplication.instance().quit
-        )
-
         self.setStyleSheet(resource_string(
             'bierwiegen', 'resources/bierwiegen.stylesheet'
         ).decode('utf-8'))
+
         self.target = False
         self.w = None
 
+        self.setup_shortcuts()
+        self.setup_gui()
+
+    def setup_gui(self):
+        self.setWindowTitle('PeP@BigBang')
         vbox = QVBoxLayout(self)
 
         upper_hbox = QHBoxLayout()
@@ -118,6 +117,25 @@ class BigBangGui(QWidget):
             label.setAlignment(Qt.AlignCenter)
 
         self.setLayout(vbox)
+
+    def setup_shortcuts(self):
+        self.exit_shortcut = QShortcut(
+            QKeySequence('Esc'),
+            self,
+            QCoreApplication.instance().quit
+        )
+
+        self.exit_shortcut = QShortcut(
+            QKeySequence('Ctrl+F'),
+            self,
+            self.toggle_fullscreen,
+        )
+
+    def toggle_fullscreen(self):
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
 
     def button_press(self):
         if self.target:
