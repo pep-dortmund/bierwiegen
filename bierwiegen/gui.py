@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QVBoxLayout,
     QLabel,
+    QApplication,
 )
 from PyQt5.QtGui import (
     QKeySequence,
@@ -21,6 +22,7 @@ class WonWindow(QWidget):
         super().__init__()
         self.setFixedWidth(400)
         self.setFixedHeight(400)
+        self.move(QApplication.desktop().center)
 
         vbox = QVBoxLayout()
 
@@ -119,7 +121,7 @@ class BigBangGui(QWidget):
             self.target_set = False
             w = WonWindow()
             w.show()
-            sleep(0.5)
+            sleep(5)
             w.hide()
         else:
             self.target_label.setText(
