@@ -101,6 +101,9 @@ class BigBangGui(QWidget):
         QShortcut(QKeySequence('Ctrl+F'), self, self.toggle_fullscreen)
         QShortcut(QKeySequence('Return'), self, self.button_press)
 
+    def closeEvent(self, event):
+        QCoreApplication.instance().quit()
+
     def toggle_fullscreen(self):
         if self.isFullScreen():
             self.showNormal()
