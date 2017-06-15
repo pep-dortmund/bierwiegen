@@ -104,7 +104,7 @@ class BigBangGui(QWidget):
             self.measured = readout_scale()
             self.scale_label.setText('{:.0f} g'.format(self.measured))
 
-            won = abs(self.measured - self.target) / self.target < 0.5
+            won = abs(self.measured - self.target) / self.target < 0.05
 
             self.target = None
 
