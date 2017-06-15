@@ -8,7 +8,6 @@ setup(
         'bierwiegen',
     ],
     install_requires=[
-        'PyQt5',
         'RPi.GPIO',
     ],
     entry_points={
