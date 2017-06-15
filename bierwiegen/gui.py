@@ -128,12 +128,10 @@ class BigBangGui(QWidget):
 
             self.target = None
 
-            w = WonWindow(won=won)
-            w.show()
-            sleep(10)
-            w.destroy()
-            self.target_label.setText('--- g')
+            self.w = WonWindow(won=won)
+            self.w.show()
         else:
+            self.w.destroy()
             self.target = random.uniform(100, 500)
             self.target_label.setText('{:.0f} g'.format(self.target))
             self.scale_label.setText('--- g')
