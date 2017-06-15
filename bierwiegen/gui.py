@@ -1,6 +1,7 @@
 from PyQt5.QtCore import QCoreApplication, Qt
 import random
 import pkg_resources
+from time import sleep
 from PyQt5.QtWidgets import (
     QWidget,
     QShortcut,
@@ -13,6 +14,25 @@ from PyQt5.QtGui import (
     QPixmap,
     QFontDatabase,
 )
+
+
+class WonWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setFixedWidth(400)
+        self.setFixedHeight(400)
+
+        vbox = QVBoxLayout()
+
+        label = QLabel('Gewonnen')
+        font = label.font()
+        font.setPointSize(120)
+        font.setBold(True)
+        label.setFont(font)
+        vbox.addWidget(label)
+
+        self.setLayout(vbox)
+        self.show()
 
 
 class BigBangGui(QWidget):
@@ -97,10 +117,13 @@ class BigBangGui(QWidget):
                 '{:.0f} g'.format(random.uniform(100, 500))
             )
             self.target_set = False
+            w = WonWindow()
+            w.show()
+            sleep(0.5)
+            w.hide()
         else:
             self.target_label.setText(
                 '{:.0f} g'.format(random.uniform(100, 500))
             )
             self.scale_label.setText('--- g')
             self.target_set = True
-
