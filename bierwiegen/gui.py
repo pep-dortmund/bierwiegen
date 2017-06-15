@@ -1,7 +1,6 @@
 from PyQt5.QtCore import QCoreApplication, Qt
 import random
 import pkg_resources
-from time import sleep
 from PyQt5.QtWidgets import (
     QWidget,
     QShortcut,
@@ -41,6 +40,7 @@ class WonWindow(QWidget):
 
         self.setLayout(vbox)
         self.show()
+        self.w = None
 
 
 class BigBangGui(QWidget):
@@ -131,7 +131,8 @@ class BigBangGui(QWidget):
             self.w = WonWindow(won=won)
             self.w.show()
         else:
-            self.w.destroy()
+            if self.w:
+                self.w.destroy()
             self.target = random.uniform(100, 500)
             self.target_label.setText('{:.0f} g'.format(self.target))
             self.scale_label.setText('--- g')
