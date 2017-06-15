@@ -27,7 +27,7 @@ class BigBangGui(QWidget):
         )
 
         self.setStyleSheet('background-color: white;')
-        self.target_set = True
+        self.target_set = False
 
         vbox = QVBoxLayout(self)
 
@@ -64,7 +64,7 @@ class BigBangGui(QWidget):
         left_vbox.addWidget(target_title)
         right_vbox.addWidget(scale_title)
 
-        self.target_label = QLabel('{:.0f} g'.format(random.uniform(100, 500)))
+        self.target_label = QLabel('--- g')
         left_vbox.addWidget(self.target_label)
 
         self.scale_label = QLabel('--- g')
