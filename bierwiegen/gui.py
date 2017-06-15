@@ -20,9 +20,11 @@ from PyQt5.QtGui import (
 class WonWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setFixedWidth(400)
-        self.setFixedHeight(400)
-        self.move(QApplication.desktop().availableGeometry().center())
+        self.setFixedWidth(600)
+        self.setFixedHeight(200)
+
+        center = QApplication.desktop().availableGeometry().center()
+        self.move(center.x() - self.width() // 2, center.y() - self.height // 2)
 
         vbox = QVBoxLayout()
 
@@ -122,7 +124,7 @@ class BigBangGui(QWidget):
             w = WonWindow()
             w.show()
             sleep(5)
-            w.hide()
+            w.destroy()
         else:
             self.target_label.setText(
                 '{:.0f} g'.format(random.uniform(100, 500))
