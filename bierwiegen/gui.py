@@ -1,6 +1,5 @@
 from PyQt5.QtCore import QCoreApplication, Qt
 import random
-from pkg_resources import resource_string, resource_filename
 from PyQt5.QtWidgets import (
     QWidget,
     QShortcut,
@@ -12,8 +11,8 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import (
     QKeySequence,
     QPixmap,
-    QFontDatabase,
 )
+from pkg_resources import resource_filename
 
 
 class WonWindow(QWidget):
@@ -32,10 +31,6 @@ class WonWindow(QWidget):
         self.move(center.x() - self.width() // 2, center.y() - self.height() // 2)
         self.setWindowFlags(Qt.FramelessWindowHint)
 
-        font = label.font()
-        font.setPointSize(120)
-        font.setBold(True)
-        label.setFont(font)
         vbox.addWidget(label)
 
         self.setLayout(vbox)
@@ -46,9 +41,6 @@ class BigBangGui(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setStyleSheet(resource_string(
-            'bierwiegen', 'resources/bierwiegen.stylesheet'
-        ).decode('utf-8'))
 
         self.target = False
         self.w = None
@@ -63,17 +55,16 @@ class BigBangGui(QWidget):
         upper_hbox = QHBoxLayout()
 
         logo = QLabel()
-        pixmap = QPixmap(resource_filename('bierwiegen', 'resources/logo_negativ.png'))
-        logo.setPixmap(pixmap.scaled(800, 300, Qt.KeepAspectRatio))
+        pixmap = QPixmap(
+            resource_filename('bierwiegen', 'resources/logo_negativ.png'),
+        )
+        logo.setPixmap(pixmap.scaled(
+            800, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation
+        ))
         logo.setAlignment(Qt.AlignTop)
 
-        title = QLabel('Bierwiegen')
-        # title.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        title = QLabel('Bierwiegen', objectName='title')
         title.setAlignment(Qt.AlignTop)
-        title_font = title.font()
-        title_font.setPointSize(120)
-        title_font.setBold(True)
-        title.setFont(title_font)
 
         upper_hbox.addWidget(logo)
         upper_hbox.addWidget(title)
@@ -85,51 +76,30 @@ class BigBangGui(QWidget):
         left_vbox = QVBoxLayout()
         right_vbox = QVBoxLayout()
 
-        target_title = QLabel('Ziel')
-        scale_title = QLabel('Waage')
+        target_title = QLabel('Ziel', objectName='target_title')
+        scale_title = QLabel('Waage', objectName='scale_title')
 
         left_vbox.addWidget(target_title)
         right_vbox.addWidget(scale_title)
 
-        self.target_label = QLabel('--- g')
+        self.target_label = QLabel('--- g', objectName='target_label')
         left_vbox.addWidget(self.target_label)
 
-        self.scale_label = QLabel('--- g')
+        self.scale_label = QLabel('--- g', objectName='scale_label')
         right_vbox.addWidget(self.scale_label)
 
         lower_hbox.addLayout(left_vbox)
         lower_hbox.addLayout(right_vbox)
 
-        font = scale_title.font()
-        font.setPointSize(120)
-        font.setBold(True)
-
-        number_font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
-        number_font.setPointSize(120)
-        number_font.setBold(True)
-
-        for label in (self.target_label, self.scale_label):
-            label.setFont(number_font)
-            label.setAlignment(Qt.AlignCenter)
-
-        for label in (scale_title, target_title):
-            label.setFont(font)
+        for label in (self.target_label, self.scale_label, scale_title, target_title):
             label.setAlignment(Qt.AlignCenter)
 
         self.setLayout(vbox)
 
     def setup_shortcuts(self):
-        self.exit_shortcut = QShortcut(
-            QKeySequence('Esc'),
-            self,
-            QCoreApplication.instance().quit
-        )
-
-        self.exit_shortcut = QShortcut(
-            QKeySequence('Ctrl+F'),
-            self,
-            self.toggle_fullscreen,
-        )
+        QShortcut(QKeySequence('Esc'), self, QCoreApplication.instance().quit)
+        QShortcut(QKeySequence('Ctrl+F'), self, self.toggle_fullscreen)
+        QShortcut(QKeySequence('Return'), self, self.button_press)
 
     def toggle_fullscreen(self):
         if self.isFullScreen():

@@ -1,0 +1,10 @@
+* { background-color: white; }
+
+QLabel {
+    font-weight: bold;
+    font-size: 120px;
+}
+
+QLabel#scale_label, QLabel#target_label {
+    font-family: monospace;
+}
