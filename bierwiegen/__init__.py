@@ -1,11 +1,8 @@
-import sys
 from PyQt5.QtCore import QCoreApplication, Qt
-from time import sleep
 import random
-from RPi import GPIO
+import pkg_resources
 from PyQt5.QtWidgets import (
     QWidget,
-    QApplication,
     QShortcut,
     QHBoxLayout,
     QVBoxLayout,
@@ -16,18 +13,6 @@ from PyQt5.QtGui import (
     QPixmap,
     QFontDatabase,
 )
-from threading import Thread
-
-BUTTON_PIN = 11
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-
-def button_press_handler(widget):
-    while True:
-        if(GPIO.input(BUTTON_PIN) == 1):
-            widget.button_press()
-            sleep(0.2)
 
 
 class BigBangGui(QWidget):
@@ -49,7 +34,9 @@ class BigBangGui(QWidget):
         upper_hbox = QHBoxLayout()
 
         logo = QLabel()
-        pixmap = QPixmap('peplogo.png')
+        pixmap = QPixmap(pkg_resources.resource_filename(
+            'bierwiegen', 'resources/logo_negativ.png'
+        ))
         logo.setPixmap(pixmap.scaled(800, 300, Qt.KeepAspectRatio))
         logo.setAlignment(Qt.AlignTop)
 
@@ -116,21 +103,3 @@ class BigBangGui(QWidget):
             )
             self.scale_label.setText('--- g')
             self.target_set = True
-
-
-def main():
-    app = QApplication(sys.argv)
-
-    w = BigBangGui()
-
-    Thread(target=button_press_handler, daemon=True, args=(w, )).start()
-
-    w.showFullScreen()
-
-    ret = app.exec_()
-    GPIO.cleanup()
-    sys.exit(ret)
-
-
-if __name__ == '__main__':
-    main()

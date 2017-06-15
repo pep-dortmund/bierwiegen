@@ -4,7 +4,7 @@ setup(
     name='bierwiegen',
     version='0.0.1',
     authors='Sascha Dungs, Maximilian Noethe',
-    py_modules=[
+    packages=[
         'bierwiegen',
     ],
     install_requires=[
@@ -12,7 +12,8 @@ setup(
     ],
     entry_points={
         'gui_scripts': [
-            'bierwiegen = bierwiegen:main',
+            'bierwiegen = bierwiegen.__main__:main',
         ]
-    }
+    },
+    package_data={'': ['resources/*']},
 )
