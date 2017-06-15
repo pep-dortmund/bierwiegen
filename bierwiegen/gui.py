@@ -123,9 +123,11 @@ class BigBangGui(QWidget):
         if self.target:
             self.measured = random.uniform(100, 500)
             self.scale_label.setText('{:.0f} g'.format(self.measured))
-            self.target = None
 
             won = abs(self.measured - self.target) / self.target < 0.1
+
+            self.target = None
+
             w = WonWindow(won=won)
             w.show()
             sleep(5)
