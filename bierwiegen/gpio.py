@@ -1,3 +1,4 @@
+from time import sleep
 import warnings
 import random
 try:
@@ -9,10 +10,21 @@ except RuntimeError:
     warnings.warn("Not on a raspberry pi")
 
 from threading import Thread, Event
+from .hx711 import HX711
 
+if HAS_GPIO:
+    scale = HX711(18, 16) 
+    scale.set_reading_format("LSB", "MSB")
+    scale.set_reference_unit(693.21)
+    scale.reset()
+    scale.tare()
 
 def readout_scale():
-    return random.uniform(100, 500)
+    if HAS_GPIO:
+        scale.reset()
+        return scale.get_weight(5)
+    else:
+        return random.uniform(100, 500)
 
 
 class ButtonWatchThread(Thread):
@@ -29,9 +41,10 @@ class ButtonWatchThread(Thread):
     def run(self):
         while not self.event.is_set():
             if HAS_GPIO:
-                if(GPIO.input(self.button_pin) == 1):
+                if(GPIO.input(self.button_pin) == 0):
                     self.widget.button_press()
-                    self.event.wait(0.2)
+                    self.event.wait(1)
+                    #self.event.wait(0.2)
             self.event.wait(0.01)
 
     def terminate(self):
