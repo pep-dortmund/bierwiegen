@@ -15,7 +15,7 @@ def main():
         resource_string('bierwiegen', 'resources/bierwiegen.qss').decode()
     )
 
-    start_time = strftime("%d%b%Y_%H-%M-%S", gmtime())
+    start_time = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
     if not os.path.isdir(os.path.expanduser("~/bierwiegen_logs")):
         os.mkdir(os.path.expanduser("~/bierwiegen_logs"))
     outputfile = open(os.path.expanduser("~/bierwiegen_logs/log_%s.txt" % start_time), "w")
