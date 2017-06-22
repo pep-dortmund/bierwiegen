@@ -1,4 +1,3 @@
-from time import sleep
 import warnings
 import random
 try:
@@ -13,11 +12,12 @@ from threading import Thread, Event
 from .hx711 import HX711
 
 if HAS_GPIO:
-    scale = HX711(18, 16) 
+    scale = HX711(18, 16)
     scale.set_reading_format("LSB", "MSB")
     scale.set_reference_unit(693.21)
     scale.reset()
     scale.tare()
+
 
 def readout_scale():
     if HAS_GPIO:
@@ -44,7 +44,7 @@ class ButtonWatchThread(Thread):
                 if(GPIO.input(self.button_pin) == 0):
                     self.widget.button_press()
                     self.event.wait(1)
-                    #self.event.wait(0.2)
+                    # self.event.wait(0.2)
             self.event.wait(0.01)
 
     def terminate(self):

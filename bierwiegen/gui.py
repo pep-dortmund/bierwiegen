@@ -1,5 +1,6 @@
 from PyQt5.QtCore import QCoreApplication, Qt, QSize
 import random
+from time import time
 from PyQt5.QtWidgets import (
     QWidget,
     QShortcut,
@@ -19,13 +20,17 @@ from .gpio import readout_scale
 
 
 class BigBangGui(QWidget):
+    outputfile = None
+    devication = None
 
-    def __init__(self):
+    def __init__(self, deviation, outputfile=None):
         super().__init__()
 
         self.target = False
         self.setup_shortcuts()
         self.setup_gui()
+        self.outputfile = outputfile
+        self.deviation = deviation
 
     def setup_gui(self):
         self.setWindowTitle('PeP@BigBang')
@@ -52,7 +57,7 @@ class BigBangGui(QWidget):
         self.fireworks = QMovie(resource_filename(
             'bierwiegen', 'resources/fireworks.gif'
         ))
-        self.fireworks.setScaledSize(QSize(1200, 536))
+        self.fireworks.setScaledSize(QSize(1200, 520))
 
         self.winning_label = QLabel(objectName='winning_label')
         self.winning_label.setAlignment(Qt.AlignCenter)
@@ -104,7 +109,13 @@ class BigBangGui(QWidget):
             self.measured = readout_scale()
             self.scale_label.setText('{:.0f} g'.format(self.measured))
 
-            won = abs(self.measured - self.target) / self.target < 0.05
+            won = abs(self.measured - self.target) <= self.deviation
+
+            self.outputfile.write("%f" % time() + "\t")
+            self.outputfile.write("%f" % self.target + "\t")
+            self.outputfile.write("%f" % self.measured + "\t")
+            self.outputfile.write("%f" % (self.target - self.measured) + "\n")
+            self.outputfile.flush()
 
             self.target = None
 
