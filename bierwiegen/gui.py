@@ -109,20 +109,24 @@ class BigBangGui(QWidget):
             self.measured = readout_scale()
             self.scale_label.setText('{:.0f} g'.format(self.measured))
 
-            won = abs(self.measured - self.target) <= self.deviation
+            diff = self.measured - self.target
+
+            won = abs(diff) <= self.deviation
 
             self.outputfile.write("%f" % time() + "\t")
             self.outputfile.write("%f" % self.target + "\t")
             self.outputfile.write("%f" % self.measured + "\t")
-            self.outputfile.write("%f" % (self.target - self.measured) + "\n")
+            self.outputfile.write("%f" % diff + "\n")
             self.outputfile.flush()
 
             self.target = None
 
             if won:
-                self.winning_label.setMovie(self.fireworks)
-                self.fireworks.jumpToFrame(0)
-                self.fireworks.start()
+                #self.winning_label.setMovie(self.fireworks)
+                #self.fireworks.jumpToFrame(0)
+                #self.fireworks.start()
+                self.winning_label.setText('Gewonnen')
+                self.winning_label.setStyleSheet('color: green;')
             else:
                 self.winning_label.setText('Verloren')
                 self.winning_label.setStyleSheet('color: red;')
