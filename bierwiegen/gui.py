@@ -1,6 +1,5 @@
 from PyQt5.QtCore import QCoreApplication, Qt, QSize
 import random
-from time import time
 from PyQt5.QtWidgets import (
     QWidget,
     QShortcut,
@@ -15,35 +14,48 @@ from PyQt5.QtGui import (
     QMovie,
 )
 from pkg_resources import resource_filename
+import os
+import yaml
 
-from .gpio import readout_scale
+from .gpio import Scale
+
+
+config_file_path = os.path.join(os.environ['HOME'], '.config/bierwiegen/config.yaml')
+config_dir = os.path.dirname(config_file_path)
+pep_logo = resource_filename('bierwiegen', 'resources/logo_negativ.png')
 
 
 class BigBangGui(QWidget):
-    outputfile = None
-    devication = None
 
-    def __init__(self, deviation, outputfile=None):
+    def __init__(self):
         super().__init__()
 
         self.target = False
+
+        self.config = {}
+        if not os.path.isfile(config_file_path):
+            if not os.path.exists(config_dir):
+                os.makedirs(config_dir)
+        else:
+            self.load_config()
+
+        self.scale = Scale(
+            self.config.get('dout_pin', 18),
+            self.config.get('pd_sck_pin', 16),
+        )
         self.setup_shortcuts()
         self.setup_gui()
-        self.outputfile = outputfile
-        self.deviation = deviation
 
     def setup_gui(self):
-        self.setWindowTitle('PeP@BigBang')
+        self.setWindowTitle(self.config.get('title', 'PeP@BigBang'))
         vbox = QVBoxLayout(self)
 
         upper_hbox = QHBoxLayout()
 
         logo = QLabel()
-        pixmap = QPixmap(
-            resource_filename('bierwiegen', 'resources/logo_negativ.png'),
-        )
+        pixmap = QPixmap(self.config.get('logo', pep_logo))
         logo.setPixmap(pixmap.scaled(
-            800, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            800, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation
         ))
         logo.setAlignment(Qt.AlignTop)
 
@@ -57,7 +69,7 @@ class BigBangGui(QWidget):
         self.fireworks = QMovie(resource_filename(
             'bierwiegen', 'resources/fireworks.gif'
         ))
-        self.fireworks.setScaledSize(QSize(1200, 520))
+        self.fireworks.setScaledSize(QSize(1000, 450))
 
         self.winning_label = QLabel(objectName='winning_label')
         self.winning_label.setAlignment(Qt.AlignCenter)
@@ -93,6 +105,7 @@ class BigBangGui(QWidget):
     def setup_shortcuts(self):
         QShortcut(QKeySequence('Esc'), self, QCoreApplication.instance().quit)
         QShortcut(QKeySequence('Ctrl+F'), self, self.toggle_fullscreen)
+        QShortcut(QKeySequence('Ctrl+T'), self, self.scale.tare)
         QShortcut(QKeySequence('Return'), self, self.button_press)
 
     def closeEvent(self, event):
@@ -106,33 +119,35 @@ class BigBangGui(QWidget):
 
     def button_press(self):
         if self.target:
-            self.measured = readout_scale()
-            self.scale_label.setText('{:.0f} g'.format(self.measured))
+            self.measured = self.scale.get_weight(5)
+            self.scale_label.setText('{: >-3.0f} g'.format(self.measured))
 
             diff = self.measured - self.target
-
-            won = abs(diff) <= self.deviation
-
-            self.outputfile.write("%f" % time() + "\t")
-            self.outputfile.write("%f" % self.target + "\t")
-            self.outputfile.write("%f" % self.measured + "\t")
-            self.outputfile.write("%f" % diff + "\n")
-            self.outputfile.flush()
+            won = abs(diff) <= self.config.get('tolerance', 10)
 
             self.target = None
 
+            self.winning_label.clear()
             if won:
-                #self.winning_label.setMovie(self.fireworks)
-                #self.fireworks.jumpToFrame(0)
-                #self.fireworks.start()
-                self.winning_label.setText('Gewonnen')
-                self.winning_label.setStyleSheet('color: green;')
+                self.winning_label.setMovie(self.fireworks)
+                self.fireworks.start()
             else:
                 self.winning_label.setText('Verloren')
                 self.winning_label.setStyleSheet('color: red;')
         else:
             self.winning_label.clear()
-            self.target = random.uniform(100, 500)
+            self.target = random.uniform(
+                self.config.get('lower_limit', 100),
+                self.config.get('upper_limit', 500)
+            )
             self.target_label.setText('{:.0f} g'.format(self.target))
             self.scale_label.setText('--- g')
             self.measured = None
+
+    def load_config(self):
+        with open(config_file_path) as f:
+            self.config = yaml.safe_load(f)
+
+    def save_config(self):
+        with open(config_file_path, 'w') as f:
+            yaml.dump(self.config, f, default_flow_style=False)

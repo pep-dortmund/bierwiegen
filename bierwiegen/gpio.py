@@ -11,20 +11,26 @@ except RuntimeError:
 from threading import Thread, Event
 from .hx711 import HX711
 
-if HAS_GPIO:
-    scale = HX711(18, 16)
-    scale.set_reading_format("LSB", "MSB")
-    scale.set_reference_unit(693.21)
-    scale.reset()
-    scale.tare()
 
+class Scale:
+    def __init__(self, dout, pd_sck):
+        if HAS_GPIO:
+            self.hx711 = HX711(dout, pd_sck)
+            self.hx711.set_reading_format("LSB", "MSB")
+            self.hx711.set_reference_unit(693.21)
+            self.hx711.reset()
+            self.hx711.tare()
 
-def readout_scale():
-    if HAS_GPIO:
-        scale.reset()
-        return scale.get_weight(5)
-    else:
-        return random.uniform(100, 500)
+    def get_weight(self, times):
+        if HAS_GPIO:
+            self.hx711.reset()
+            return self.hx711.get_weight(times)
+        else:
+            return random.uniform(100, 500)
+
+    def tare(self):
+        if HAS_GPIO:
+            self.hx711.tare()
 
 
 class ButtonWatchThread(Thread):
