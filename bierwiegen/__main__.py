@@ -3,7 +3,7 @@ from pkg_resources import resource_string
 import sys
 
 from .gui import BigBangGui
-from .gpio import ButtonWatchThread
+from .gpio import ButtonWatchThread, cleanup
 
 
 def main():
@@ -23,6 +23,7 @@ def main():
     ret = app.exec_()
 
     t.terminate()
+    cleanup()
     sys.exit(ret)
 
 

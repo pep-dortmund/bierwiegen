@@ -12,6 +12,11 @@ from threading import Thread, Event
 from .hx711 import HX711
 
 
+def cleanup():
+    if HAS_GPIO:
+        GPIO.cleanup()
+
+
 class Scale:
     def __init__(self, dout, pd_sck):
         if HAS_GPIO:
