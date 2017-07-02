@@ -60,5 +60,3 @@ class ButtonWatchThread(Thread):
 
     def terminate(self):
         self.event.set()
-        if HAS_GPIO:
-            GPIO.cleanup()

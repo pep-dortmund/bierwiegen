@@ -16,6 +16,8 @@ from PyQt5.QtGui import (
 from pkg_resources import resource_filename
 import os
 import yaml
+from datetime import datetime
+import json
 
 from .gpio import Scale
 
@@ -59,7 +61,7 @@ class BigBangGui(QWidget):
         ))
         logo.setAlignment(Qt.AlignTop)
 
-        title = QLabel('Bierwiegen', objectName='title')
+        title = QLabel('Schätzen!', objectName='title')
         title.setAlignment(Qt.AlignTop)
 
         upper_hbox.addWidget(logo)
@@ -125,7 +127,6 @@ class BigBangGui(QWidget):
             diff = self.measured - self.target
             won = abs(diff) <= self.config.get('tolerance', 10)
 
-            self.target = None
 
             self.winning_label.clear()
             if won:
@@ -134,6 +135,16 @@ class BigBangGui(QWidget):
             else:
                 self.winning_label.setText('Verloren')
                 self.winning_label.setStyleSheet('color: red;')
+
+            with open(self.config.get('logfile', 'log.jsonl'), 'a') as f:
+                json.dump({
+                    'target': self.target,
+                    'measured': self.measured,
+                    'won': won,
+                    'timestamp': str(datetime.utcnow())
+                }, f)
+                f.write('\n')
+            self.target = None
         else:
             self.winning_label.clear()
             self.target = random.uniform(
