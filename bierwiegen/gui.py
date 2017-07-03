@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QCoreApplication, Qt, QSize
+from PyQt5.QtCore import QCoreApplication, Qt, QSize, QTimer
 import random
 from PyQt5.QtWidgets import (
     QWidget,
@@ -103,11 +103,20 @@ class BigBangGui(QWidget):
             label.setAlignment(Qt.AlignCenter)
 
         self.setLayout(vbox)
+        self.reset_timer = QTimer()
+        self.reset_timer.timeout.connect(self.reset)
+
+    def reset(self):
+        self.target = None
+        self.target_label.setText('--- g')
+        self.scale_label.setText('--- g')
+        self.winning_label.clear()
 
     def setup_shortcuts(self):
         QShortcut(QKeySequence('Esc'), self, QCoreApplication.instance().quit)
         QShortcut(QKeySequence('Ctrl+F'), self, self.toggle_fullscreen)
         QShortcut(QKeySequence('Ctrl+T'), self, self.scale.tare)
+        QShortcut(QKeySequence('Ctrl+R'), self, self.reset)
         QShortcut(QKeySequence('Return'), self, self.button_press)
 
     def closeEvent(self, event):
@@ -120,6 +129,7 @@ class BigBangGui(QWidget):
             self.showFullScreen()
 
     def button_press(self):
+        self.reset_timer.stop()
         if self.target:
             self.measured = self.scale.get_weight(5)
             self.scale_label.setText('{: >-3.0f} g'.format(self.measured))
@@ -145,6 +155,7 @@ class BigBangGui(QWidget):
                 }, f)
                 f.write('\n')
             self.target = None
+            self.reset_timer.start(10000)  # reset display after N milliseconds
         else:
             self.winning_label.clear()
             self.target = random.uniform(
