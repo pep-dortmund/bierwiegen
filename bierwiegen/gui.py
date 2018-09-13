@@ -19,7 +19,7 @@ import yaml
 from datetime import datetime
 import json
 
-from .gpio import Scale
+from .gpio import Scale, ButtonWatchThread
 
 
 config_file_path = os.path.join(os.environ['HOME'], '.config/bierwiegen/config.yaml')
@@ -44,9 +44,13 @@ class BigBangGui(QWidget):
         self.scale = Scale(
             self.config.get('dout_pin', 18),
             self.config.get('pd_sck_pin', 16),
+            self.config.get('scale', 0.00072768)
         )
         self.setup_shortcuts()
         self.setup_gui()
+        self.button_thread = ButtonWatchThread(self.config.get('button_pin', 11))
+        self.button_thread.buttonPressed.connect(self.button_press)
+        self.button_thread.start()
 
     def setup_gui(self):
         self.setWindowTitle(self.config.get('title', 'PeP@BigBang'))
@@ -120,6 +124,7 @@ class BigBangGui(QWidget):
         QShortcut(QKeySequence('Return'), self, self.button_press)
 
     def closeEvent(self, event):
+        self.button_thread.terminate()
         QCoreApplication.instance().quit()
 
     def toggle_fullscreen(self):
@@ -135,7 +140,7 @@ class BigBangGui(QWidget):
             self.scale_label.setText('{: >-3.0f} g'.format(self.measured))
 
             diff = self.measured - self.target
-            won = abs(diff) <= self.config.get('tolerance', 10)
+            won = bool(abs(diff) <= self.config.get('tolerance', 10))
 
 
             self.winning_label.clear()

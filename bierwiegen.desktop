@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Terminal=false
+Exec=/home/pi/.local/bin/bierwiegen
+Icon=/home/pi/bierwiegen/bierwiegen/resources/beer.png
+Name=Bierwiegen
