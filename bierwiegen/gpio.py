@@ -21,8 +21,6 @@ class Scale:
     def __init__(self, dout, pd_sck):
         if HAS_GPIO:
             self.hx711 = HX711(dout, pd_sck)
-            self.hx711.set_reading_format("LSB", "MSB")
-            self.hx711.set_reference_unit(693.21)
             self.hx711.reset()
             self.hx711.tare()
 
