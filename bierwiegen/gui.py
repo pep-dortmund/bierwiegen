@@ -13,7 +13,7 @@ from PyQt5.QtGui import (
     QPixmap,
     QMovie,
 )
-from pkg_resources import resource_filename
+import pkg_resources
 import os
 import yaml
 from datetime import datetime
@@ -22,9 +22,16 @@ import json
 from .gpio import Scale, ButtonWatchThread
 
 
+def resource_filename(filename):
+    return pkg_resources.resource_filename(
+        'bierwiegen', os.path.join('resources', filename)
+    )
+
+
 config_file_path = os.path.join(os.environ['HOME'], '.config/bierwiegen/config.yaml')
 config_dir = os.path.dirname(config_file_path)
-pep_logo = resource_filename('bierwiegen', 'resources/logo_negativ.png')
+pep_logo = resource_filename('logo_negativ.png')
+
 
 
 class BigBangGui(QWidget):
@@ -73,13 +80,13 @@ class BigBangGui(QWidget):
         upper_hbox.addWidget(title)
         vbox.addLayout(upper_hbox)
 
-        self.fireworks = QMovie(resource_filename(
-            'bierwiegen', 'resources/fireworks.gif'
-        ))
+        self.fireworks = QMovie(resource_filename('fireworks.gif'))
         self.fireworks.setScaledSize(QSize(1000, 450))
-        self.loading = QMovie(resource_filename(
-            'bierwiegen', 'resources/loading.gif'
-        ))
+
+        d = resource_filename('failed')
+        self.failed_movies = [QMovie(os.path.join(d, f)) for f in os.listdir(d)]
+
+        self.loading = QMovie(resource_filename('loading.gif'))
         self.loading.setScaledSize(QSize(425, 225))
 
         self.winning_label = QLabel(objectName='winning_label')
@@ -153,8 +160,9 @@ class BigBangGui(QWidget):
             self.winning_label.setMovie(self.fireworks)
             self.fireworks.start()
         else:
-            self.winning_label.setText('Verloren')
-            self.winning_label.setStyleSheet('color: red;')
+            self.failed = random.choice(self.failed_movies)
+            self.winning_label.setMovie(self.failed)
+            self.failed.start()
 
         with open(self.config.get('logfile', 'log.jsonl'), 'a') as f:
             json.dump({
