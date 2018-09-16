@@ -10,7 +10,7 @@ except RuntimeError:
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from .hx711 import HX711
-from time import sleep
+from time import sleep, clock
 
 
 def cleanup():
@@ -18,18 +18,29 @@ def cleanup():
         GPIO.cleanup()
 
 
-class Scale:
-    def __init__(self, dout, pd_sck, scale):
+class Scale(QThread):
+    done = pyqtSignal(float, arguments=['weight'])
+
+    def __init__(self, dout, pd_sck, scale, n=5):
+        self.n = n
+        super().__init__()
         if HAS_GPIO:
             self.hx711 = HX711(dout, pd_sck, scale)
             self.hx711.tare()
+            self.last_reset = clock()
 
-    def get_weight(self, times):
+    def get_weight(self):
+        self.start()
+
+    def run(self):
         if HAS_GPIO:
-            self.hx711.reset()
-            return self.hx711.read(times)
+            now = clock()
+            if now - self.last_reset > 600:
+                self.hx711.reset()
+                self.last_reset = now
+            self.done.emit(self.hx711.read(self.n))
         else:
-            return random.uniform(100, 500)
+            self.done.emit(random.uniform(100, 500))
 
     def tare(self):
         if HAS_GPIO:
@@ -48,9 +59,9 @@ class ButtonWatchThread(QThread):
             GPIO.setup(self.button_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     def run(self):
-        while True:
+        while not self.isInterruptionRequested():
             if HAS_GPIO:
-                if(GPIO.input(self.button_pin) == 0):
+                if not GPIO.input(self.button_pin):
                     self.buttonPressed.emit()
-                    sleep(1)
+                    sleep(0.5)
             sleep(0.01)

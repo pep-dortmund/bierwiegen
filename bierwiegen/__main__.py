@@ -13,14 +13,14 @@ def main():
         resource_string('bierwiegen', 'resources/bierwiegen.qss').decode()
     )
 
-    w = BigBangGui()
-
-
-    w.showFullScreen()
-    ret = app.exec_()
-
-    cleanup()
-    sys.exit(ret)
+    try:
+        w = BigBangGui()
+        w.showFullScreen()
+        sys.exit(app.exec_())
+    finally:
+        w.scale.wait()
+        w.button_thread.wait()
+        cleanup()
 
 
 if __name__ == '__main__':
