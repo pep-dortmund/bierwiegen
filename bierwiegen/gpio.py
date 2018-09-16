@@ -2,6 +2,7 @@ import warnings
 import random
 try:
     from RPi import GPIO
+    from .hx711 import HX711
     GPIO.setmode(GPIO.BOARD)
     HAS_GPIO = True
 except RuntimeError:
@@ -9,7 +10,6 @@ except RuntimeError:
     warnings.warn("Not on a raspberry pi")
 
 from PyQt5.QtCore import QThread, pyqtSignal
-from .hx711 import HX711
 from time import sleep, clock
 
 
