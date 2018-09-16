@@ -8,8 +8,9 @@ except RuntimeError:
     HAS_GPIO = False
     warnings.warn("Not on a raspberry pi")
 
-from threading import Thread, Event
+from PyQt5.QtCore import QThread, pyqtSignal
 from .hx711 import HX711
+from time import sleep
 
 
 def cleanup():
@@ -18,18 +19,15 @@ def cleanup():
 
 
 class Scale:
-    def __init__(self, dout, pd_sck):
+    def __init__(self, dout, pd_sck, scale):
         if HAS_GPIO:
-            self.hx711 = HX711(dout, pd_sck)
-            self.hx711.set_reading_format("LSB", "MSB")
-            self.hx711.set_reference_unit(693.21)
-            self.hx711.reset()
+            self.hx711 = HX711(dout, pd_sck, scale)
             self.hx711.tare()
 
     def get_weight(self, times):
         if HAS_GPIO:
             self.hx711.reset()
-            return self.hx711.get_weight(times)
+            return self.hx711.read(times)
         else:
             return random.uniform(100, 500)
 
@@ -38,27 +36,21 @@ class Scale:
             self.hx711.tare()
 
 
-class ButtonWatchThread(Thread):
+class ButtonWatchThread(QThread):
 
-    def __init__(self, pin, widget):
+    buttonPressed = pyqtSignal()
+
+    def __init__(self, pin):
         super().__init__()
         self.button_pin = pin
-        self.widget = widget
-        self.event = Event()
 
         if HAS_GPIO:
             GPIO.setup(self.button_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     def run(self):
-        while not self.event.is_set():
+        while True:
             if HAS_GPIO:
                 if(GPIO.input(self.button_pin) == 0):
-                    self.widget.button_press()
-                    self.event.wait(1)
-                    # self.event.wait(0.2)
-            self.event.wait(0.01)
-
-    def terminate(self):
-        self.event.set()
-        if HAS_GPIO:
-            GPIO.cleanup()
+                    self.buttonPressed.emit()
+                    sleep(1)
+            sleep(0.01)

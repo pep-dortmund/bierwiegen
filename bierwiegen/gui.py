@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QCoreApplication, Qt, QSize
+from PyQt5.QtCore import QCoreApplication, Qt, QSize, QTimer
 import random
 from PyQt5.QtWidgets import (
     QWidget,
@@ -16,8 +16,10 @@ from PyQt5.QtGui import (
 from pkg_resources import resource_filename
 import os
 import yaml
+from datetime import datetime
+import json
 
-from .gpio import Scale
+from .gpio import Scale, ButtonWatchThread
 
 
 config_file_path = os.path.join(os.environ['HOME'], '.config/bierwiegen/config.yaml')
@@ -42,9 +44,13 @@ class BigBangGui(QWidget):
         self.scale = Scale(
             self.config.get('dout_pin', 18),
             self.config.get('pd_sck_pin', 16),
+            self.config.get('scale', 0.00072768)
         )
         self.setup_shortcuts()
         self.setup_gui()
+        self.button_thread = ButtonWatchThread(self.config.get('button_pin', 11))
+        self.button_thread.buttonPressed.connect(self.button_press)
+        self.button_thread.start()
 
     def setup_gui(self):
         self.setWindowTitle(self.config.get('title', 'PeP@BigBang'))
@@ -59,7 +65,7 @@ class BigBangGui(QWidget):
         ))
         logo.setAlignment(Qt.AlignTop)
 
-        title = QLabel('Bierwiegen', objectName='title')
+        title = QLabel('Schätzen!', objectName='title')
         title.setAlignment(Qt.AlignTop)
 
         upper_hbox.addWidget(logo)
@@ -101,14 +107,24 @@ class BigBangGui(QWidget):
             label.setAlignment(Qt.AlignCenter)
 
         self.setLayout(vbox)
+        self.reset_timer = QTimer()
+        self.reset_timer.timeout.connect(self.reset)
+
+    def reset(self):
+        self.target = None
+        self.target_label.setText('--- g')
+        self.scale_label.setText('--- g')
+        self.winning_label.clear()
 
     def setup_shortcuts(self):
         QShortcut(QKeySequence('Esc'), self, QCoreApplication.instance().quit)
         QShortcut(QKeySequence('Ctrl+F'), self, self.toggle_fullscreen)
         QShortcut(QKeySequence('Ctrl+T'), self, self.scale.tare)
+        QShortcut(QKeySequence('Ctrl+R'), self, self.reset)
         QShortcut(QKeySequence('Return'), self, self.button_press)
 
     def closeEvent(self, event):
+        self.button_thread.terminate()
         QCoreApplication.instance().quit()
 
     def toggle_fullscreen(self):
@@ -118,14 +134,14 @@ class BigBangGui(QWidget):
             self.showFullScreen()
 
     def button_press(self):
+        self.reset_timer.stop()
         if self.target:
             self.measured = self.scale.get_weight(5)
             self.scale_label.setText('{: >-3.0f} g'.format(self.measured))
 
             diff = self.measured - self.target
-            won = abs(diff) <= self.config.get('tolerance', 10)
+            won = bool(abs(diff) <= self.config.get('tolerance', 10))
 
-            self.target = None
 
             self.winning_label.clear()
             if won:
@@ -134,6 +150,17 @@ class BigBangGui(QWidget):
             else:
                 self.winning_label.setText('Verloren')
                 self.winning_label.setStyleSheet('color: red;')
+
+            with open(self.config.get('logfile', 'log.jsonl'), 'a') as f:
+                json.dump({
+                    'target': self.target,
+                    'measured': self.measured,
+                    'won': won,
+                    'timestamp': str(datetime.utcnow())
+                }, f)
+                f.write('\n')
+            self.target = None
+            self.reset_timer.start(10000)  # reset display after N milliseconds
         else:
             self.winning_label.clear()
             self.target = random.uniform(

@@ -9,6 +9,7 @@ setup(
     ],
     install_requires=[
         'RPi.GPIO',
+        'pyyaml',
     ],
     entry_points={
         'gui_scripts': [
