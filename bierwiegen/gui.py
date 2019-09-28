@@ -34,6 +34,7 @@ pep_logo = resource_filename('logo_negativ.png')
 
 
 
+
 class BigBangGui(QWidget):
 
     def __init__(self):
@@ -49,9 +50,10 @@ class BigBangGui(QWidget):
             self.load_config()
 
         self.scale = Scale(
-            self.config.get('dout_pin', 18),
-            self.config.get('pd_sck_pin', 16),
-            self.config.get('scale', 0.00072768)
+            dout=self.config.get('dout_pin', 18),
+            pd_sck=self.config.get('pd_sck_pin', 16),
+            scale=self.config.get('scale', 0.00072768),
+            n=self.config.get('n_weights', 1),
         )
         self.scale.done.connect(self.weighting_done)
         self.setup_shortcuts()
@@ -72,6 +74,7 @@ class BigBangGui(QWidget):
             800, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation
         ))
         logo.setAlignment(Qt.AlignTop)
+        
 
         title = QLabel('Schätzen!', objectName='title')
         title.setAlignment(Qt.AlignTop)
@@ -83,7 +86,7 @@ class BigBangGui(QWidget):
         self.fireworks = QMovie(resource_filename('fireworks.gif'))
         self.fireworks.setScaledSize(QSize(1000, 450))
 
-        d = resource_filename('failed')
+        d = self.config.get('failed_dir', resource_filename('failed'))
         self.failed_movies = [QMovie(os.path.join(d, f)) for f in os.listdir(d)]
 
         self.loading = QMovie(resource_filename('loading.gif'))
@@ -184,7 +187,7 @@ class BigBangGui(QWidget):
         else:
             self.winning_label.clear()
             self.target = random.uniform(
-                self.config.get('lower_limit', 100),
+                self.config.get('lower_limit', 1),
                 self.config.get('upper_limit', 500)
             )
             self.target_label.setText('{:.0f} g'.format(self.target))

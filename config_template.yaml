@@ -1,0 +1,29 @@
+# maximum deviation from target to win
+tolerance: 10
+
+# conversion factor between 
+# adc units and grams of the scale
+scale: 0.00072768
+
+# dout pin of scale
+dout_pin: 18
+
+# pd_sck_pin of scale
+pd_sck_pin: 16
+
+# the pin the big push button is connected to
+button_pin: 11
+
+
+# Window title
+title: PeP@BigBang
+
+# logo displayed at the top left
+logo: /path/to/logo/image.png
+
+# directory with movies to be played in case of failure
+failed_dir: /path/to/failed/dir
+
+
+# file to save game results
+logfile: log.jsonl

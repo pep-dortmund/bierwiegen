@@ -1,3 +1,10 @@
+'''
+This module contains classes to talk to the
+rpis GPIO pins from the QT application.
+For testing of the GUI without a pi, it also
+works without GPIO being present but then only emits
+random numbers.
+'''
 import warnings
 import random
 try:
@@ -19,6 +26,14 @@ def cleanup():
 
 
 class Scale(QThread):
+    '''
+    A thread that will use an instance of the hx711 scale
+    to measure the weight.
+
+    The measurement can be started using `get_weight` and
+    the result is emitted via the `done` signal's `weight` attribute.
+
+    '''
     done = pyqtSignal(float, arguments=['weight'])
 
     def __init__(self, dout, pd_sck, scale, n=5):
@@ -48,6 +63,10 @@ class Scale(QThread):
 
 
 class ButtonWatchThread(QThread):
+    '''
+    A thread that watches for the button to be pressed
+    and then emits a `buttonPressed` event
+    '''
 
     buttonPressed = pyqtSignal()
 
