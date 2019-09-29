@@ -1,15 +1,14 @@
 '''
-Code to read data from a hx711 scale.
+Code to read data from a hx711 adc.
 '''
-from __future__ import print_function
 import RPi.GPIO as GPIO
 from time import sleep
-import numpy as np
+from statistics import median
 
 
 class HX711:
     '''
-    A HX711 scale
+    Interface to a HX711 ADC for load cell
 
     Attributes
     ----------
@@ -18,15 +17,15 @@ class HX711:
     pd_sck: int
         the pd_sck pin
     scale: float
-        conversion factor between adc bits and grams
+        conversion factor between adc counts and grams
     gain: int
         the gain to use, (128 or 64)
     '''
-    
+
     # total pulses to select gain
     N_GAIN_BITS = {128: 1, 64: 3}
 
-    def __init__(self, dout, pd_sck, scale, gain=128):
+    def __init__(self, dout, pd_sck, scale=0.00072768, gain=128):
         self.pd_sck = pd_sck
         self.dout = dout
 
@@ -54,17 +53,20 @@ class HX711:
         self.scale = reference / (self.read_median(n=n) - self.zero)
 
     def read_median(self, n):
-        return np.median([self.read_raw() for i in range(n)])
+        return median([self.read_raw() for i in range(n)])
 
-    def read(self, n=10):
-        vals = self.read_median(n=n)
-        return (vals - self.zero) * self.scale
+    def read(self, n=3):
+        if n > 1:
+            val = self.read_median(n=n)
+        else:
+            val = self.read_raw()
+        return (val - self.zero) * self.scale
 
     def read_raw(self):
         GPIO.output(self.pd_sck, False)
 
         while not self.is_ready():
-            sleep(1e-6)
+            sleep(0.001)
 
         n = sum(self.read_bit() << (24 - i) for i in range(24))
 
@@ -76,7 +78,7 @@ class HX711:
             return -np.inf
         elif n == 0x7fffff:
             return np.inf
-        
+
         return n
 
     def read_bit(self):
@@ -87,11 +89,11 @@ class HX711:
         return bit
 
     def clock_pulse(self):
-        GPIO.output(self.pd_sck, True) 
+        GPIO.output(self.pd_sck, True)
         sleep(10e-6)
-        GPIO.output(self.pd_sck, False) 
+        GPIO.output(self.pd_sck, False)
 
-    @property 
+    @property
     def gain(self):
         return self._gain
 
@@ -102,7 +104,7 @@ class HX711:
         self._gain = gain
         GPIO.output(self.pd_sck, False)
         self.read_raw()
-    
+
     def power_down(self):
         GPIO.output(self.pd_sck, True)
         sleep(0.01)
@@ -113,5 +115,5 @@ class HX711:
     def reset(self):
         self.power_down()
         self.power_up()
-        self.read_raw()  # one read to get the correct gain setting 
+        self.read_raw()  # one read to get the correct gain setting
 

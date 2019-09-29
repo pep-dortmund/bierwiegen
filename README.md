@@ -10,7 +10,7 @@ https://cdn.sparkfun.com/datasheets/Sensors/ForceFlex/hx711_english.pdf
 ## Setup on a pi
 
 ```
-$ sudo apt install python3 python3-pyqt5 python3-numpy python3-rpi.gpio python3-pyyaml
+$ sudo apt install python3 python3-pyqt5 python3-rpi.gpio python3-yaml
 $ git clone https://github.com/pep-dortmund/bierwiegen
 $ cd bierwiegen
 $ pip install -e .
