@@ -14,8 +14,9 @@ pd_sck_pin: 16
 # the pin the big push button is connected to
 button_pin: 11
 
+window_title: Bierwiegen
 
-# Window title
+# title in the top right corner
 title: PeP@BigBang
 
 # logo displayed at the top left

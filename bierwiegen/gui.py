@@ -63,7 +63,7 @@ class BigBangGui(QWidget):
         self.button_thread.start()
 
     def setup_gui(self):
-        self.setWindowTitle(self.config.get('title', 'PeP@BigBang'))
+        self.setWindowTitle(self.config.get('window_title', 'PeP@BigBang'))
         vbox = QVBoxLayout(self)
 
         upper_hbox = QHBoxLayout()
@@ -74,9 +74,8 @@ class BigBangGui(QWidget):
             800, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation
         ))
         logo.setAlignment(Qt.AlignTop)
-        
 
-        title = QLabel('Schätzen!', objectName='title')
+        title = QLabel(self.config.get('title', 'Schätzen!'), objectName='title')
         title.setAlignment(Qt.AlignTop)
 
         upper_hbox.addWidget(logo)
